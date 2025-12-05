@@ -3,10 +3,19 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import pino from 'pino';
 import pinoHttp from 'pino-http';
-import pg_client from './lib/database/pg_client';
+import pg from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../prisma/generated/prisma/client';
 
 dotenv.config();
-await pg_client.connect();
+
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({
+  adapter,
+  log: ['query', 'info', 'warn', 'error']
+});
+
 const PORT = process.env.APP_PORT || 3000;
 
 const app = express();
@@ -26,8 +35,8 @@ app.use(express.json());
 app.use(pinoHttp({ logger }));
 app.use(cors());
 
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
+app.get('/', async (req, res) => {
+  
 });
 
 const server = app.listen(PORT, () => {
@@ -35,9 +44,10 @@ const server = app.listen(PORT, () => {
 });
 
 const shutdown = async () => {
-  console.log('Cerrando conexión a PostgreSQL...');
-  await pg_client.end();
-  server.close(() => {
+  await prisma.$disconnect();
+  await pool.end();
+  server.close(async () => {
+    await prisma.$disconnect();
     console.log('Servidor Express cerrado.');
     process.exit(0);
   });
