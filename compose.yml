@@ -1,0 +1,14 @@
+services:
+  postgresql:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: interview_db
+    ports:
+      - "5432:5432"
+    volumes: 
+      - postgres_interview_db_data:/var/lib/postgresql
+
+volumes:
+  postgres_interview_db_data:
