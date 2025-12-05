@@ -1,5 +1,5 @@
 import { prisma } from "../lib/database/prisma";
-import type { Card } from "../../prisma/generated/prisma/client";
+import type { Card, CardType } from "../../prisma/generated/prisma/client";
 import bcrypt from 'bcrypt';
 import { DatabaseError, CardError } from "../lib/errors/errors";
 
@@ -66,7 +66,13 @@ class CardService {
         }
     }
 
-    static async pinIsValid(cardId: string, pin: string): Promise<boolean> {
+    static async pinIsValid(cardId: string, pin: string): Promise<{
+        id: string;
+        type: CardType;
+        withdrawalLimit: number;
+        creditLimit: number | null;
+        accountIBAN: string;
+    } | null> {
         let card: Card | null = null;
         try {
             card = await prisma.card.findUnique({
@@ -83,7 +89,43 @@ class CardService {
         }
         const hashedPin = card.hashedPin;
         const isMatch = await bcrypt.compare(pin, hashedPin);
-        return isMatch;
+        if (!isMatch) {
+            return null;
+        }
+        const {
+            id,
+            type,
+            withdrawalLimit,
+            creditLimit,
+            accountIBAN,
+        } = card;
+        return {
+            id,
+            type,
+            withdrawalLimit,
+            creditLimit,
+            accountIBAN,
+        };
+    }
+
+    static async getCardBankId(cardId: string): Promise<string> {
+        let card;
+        try {
+            card = await prisma.card.findUnique({
+                where: { id: cardId },
+                include: {
+                    account: {
+                        select: { bankId: true }
+                    }
+                }
+            });
+        } catch (e) {
+            throw new DatabaseError(`Failed to fetch card (${e instanceof Error ? e.message : String(e)})`);
+        }
+        if (!card) {
+            throw new CardError("Card not found");
+        }
+        return card.account.bankId;
     }
 }
 
