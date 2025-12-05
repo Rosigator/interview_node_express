@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.1.0",
   "engineVersion": "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba",
   "activeProvider": "postgresql",
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"./generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id    Int    @id @default(autoincrement())\n  email String @unique\n}\n",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"./generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel Bank {\n  id            String    @id @default(cuid())\n  name          String\n  withdrawalFee Float     @default(0)\n  transferFee   Float     @default(0)\n  accounts      Account[]\n  atms          ATM[]\n}\n\nmodel ATM {\n  id     String @id @default(cuid())\n  bank   Bank   @relation(fields: [bankId], references: [id])\n  bankId String\n}\n\nmodel User {\n  id       String    @id @default(cuid())\n  accounts Account[]\n}\n\nmodel Account {\n  IBAN                    String        @id @default(cuid())\n  user                    User          @relation(fields: [userId], references: [id])\n  userId                  String\n  transactions            Transaction[] @relation(\"MainAccount\")\n  counterpartTransactions Transaction[] @relation(\"CounterpartAccount\")\n  cards                   Card[]\n  bank                    Bank          @relation(fields: [bankId], references: [id])\n  bankId                  String\n}\n\nenum TransactionType {\n  DEPOSIT\n  WITHDRAWAL\n  TRANSFER_IN\n  TRANSFER_OUT\n  FEE\n}\n\nmodel Transaction {\n  id                     String          @id @default(cuid())\n  type                   TransactionType\n  description            String\n  amount                 Float\n  mainAccount            Account         @relation(\"MainAccount\", fields: [mainAccountIBAN], references: [IBAN])\n  mainAccountIBAN        String\n  counterpartAccount     Account?        @relation(\"CounterpartAccount\", fields: [counterpartAccountIBAN], references: [IBAN])\n  counterpartAccountIBAN String?\n  date                   DateTime        @default(now())\n}\n\nenum CardType {\n  DEBIT\n  CREDIT\n}\n\nmodel Card {\n  id              String   @id @default(cuid())\n  hashedPin       String\n  pinChanged      Boolean  @default(false)\n  type            CardType\n  withdrawalLimit Float\n  creditLimit     Float?\n  active          Boolean  @default(false)\n  account         Account  @relation(fields: [accountIBAN], references: [IBAN])\n  accountIBAN     String\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -28,7 +28,7 @@ const config: runtime.GetPrismaClientConfig = {
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Bank\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"withdrawalFee\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"transferFee\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"accounts\",\"kind\":\"object\",\"type\":\"Account\",\"relationName\":\"AccountToBank\"},{\"name\":\"atms\",\"kind\":\"object\",\"type\":\"ATM\",\"relationName\":\"ATMToBank\"}],\"dbName\":null},\"ATM\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"bank\",\"kind\":\"object\",\"type\":\"Bank\",\"relationName\":\"ATMToBank\"},{\"name\":\"bankId\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accounts\",\"kind\":\"object\",\"type\":\"Account\",\"relationName\":\"AccountToUser\"}],\"dbName\":null},\"Account\":{\"fields\":[{\"name\":\"IBAN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AccountToUser\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"transactions\",\"kind\":\"object\",\"type\":\"Transaction\",\"relationName\":\"MainAccount\"},{\"name\":\"counterpartTransactions\",\"kind\":\"object\",\"type\":\"Transaction\",\"relationName\":\"CounterpartAccount\"},{\"name\":\"cards\",\"kind\":\"object\",\"type\":\"Card\",\"relationName\":\"AccountToCard\"},{\"name\":\"bank\",\"kind\":\"object\",\"type\":\"Bank\",\"relationName\":\"AccountToBank\"},{\"name\":\"bankId\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"Transaction\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"TransactionType\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"amount\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"mainAccount\",\"kind\":\"object\",\"type\":\"Account\",\"relationName\":\"MainAccount\"},{\"name\":\"mainAccountIBAN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"counterpartAccount\",\"kind\":\"object\",\"type\":\"Account\",\"relationName\":\"CounterpartAccount\"},{\"name\":\"counterpartAccountIBAN\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"date\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Card\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"hashedPin\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"pinChanged\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"CardType\"},{\"name\":\"withdrawalLimit\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"creditLimit\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"account\",\"kind\":\"object\",\"type\":\"Account\",\"relationName\":\"AccountToCard\"},{\"name\":\"accountIBAN\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import('node:buffer')
@@ -58,8 +58,8 @@ export interface PrismaClientConstructor {
    * @example
    * ```
    * const prisma = new PrismaClient()
-   * // Fetch zero or more Users
-   * const users = await prisma.user.findMany()
+   * // Fetch zero or more Banks
+   * const banks = await prisma.bank.findMany()
    * ```
    * 
    * Read more in our [docs](https://pris.ly/d/client).
@@ -80,8 +80,8 @@ export interface PrismaClientConstructor {
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more Users
- * const users = await prisma.user.findMany()
+ * // Fetch zero or more Banks
+ * const banks = await prisma.bank.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -175,6 +175,26 @@ export interface PrismaClient<
   }>>
 
       /**
+   * `prisma.bank`: Exposes CRUD operations for the **Bank** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Banks
+    * const banks = await prisma.bank.findMany()
+    * ```
+    */
+  get bank(): Prisma.BankDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.aTM`: Exposes CRUD operations for the **ATM** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ATMS
+    * const aTMS = await prisma.aTM.findMany()
+    * ```
+    */
+  get aTM(): Prisma.ATMDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
    * `prisma.user`: Exposes CRUD operations for the **User** model.
     * Example usage:
     * ```ts
@@ -183,6 +203,36 @@ export interface PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.account`: Exposes CRUD operations for the **Account** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Accounts
+    * const accounts = await prisma.account.findMany()
+    * ```
+    */
+  get account(): Prisma.AccountDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.transaction`: Exposes CRUD operations for the **Transaction** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Transactions
+    * const transactions = await prisma.transaction.findMany()
+    * ```
+    */
+  get transaction(): Prisma.TransactionDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.card`: Exposes CRUD operations for the **Card** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Cards
+    * const cards = await prisma.card.findMany()
+    * ```
+    */
+  get card(): Prisma.CardDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
 export function getPrismaClientClass(): PrismaClientConstructor {

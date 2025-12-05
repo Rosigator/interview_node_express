@@ -51,7 +51,12 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  User: 'User'
+  Bank: 'Bank',
+  ATM: 'ATM',
+  User: 'User',
+  Account: 'Account',
+  Transaction: 'Transaction',
+  Card: 'Card'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -70,12 +75,65 @@ export const TransactionIsolationLevel = {
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const UserScalarFieldEnum = {
+export const BankScalarFieldEnum = {
   id: 'id',
-  email: 'email'
+  name: 'name',
+  withdrawalFee: 'withdrawalFee',
+  transferFee: 'transferFee'
+} as const
+
+export type BankScalarFieldEnum = (typeof BankScalarFieldEnum)[keyof typeof BankScalarFieldEnum]
+
+
+export const ATMScalarFieldEnum = {
+  id: 'id',
+  bankId: 'bankId'
+} as const
+
+export type ATMScalarFieldEnum = (typeof ATMScalarFieldEnum)[keyof typeof ATMScalarFieldEnum]
+
+
+export const UserScalarFieldEnum = {
+  id: 'id'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const AccountScalarFieldEnum = {
+  IBAN: 'IBAN',
+  userId: 'userId',
+  bankId: 'bankId'
+} as const
+
+export type AccountScalarFieldEnum = (typeof AccountScalarFieldEnum)[keyof typeof AccountScalarFieldEnum]
+
+
+export const TransactionScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  description: 'description',
+  amount: 'amount',
+  mainAccountIBAN: 'mainAccountIBAN',
+  counterpartAccountIBAN: 'counterpartAccountIBAN',
+  date: 'date'
+} as const
+
+export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const CardScalarFieldEnum = {
+  id: 'id',
+  hashedPin: 'hashedPin',
+  pinChanged: 'pinChanged',
+  type: 'type',
+  withdrawalLimit: 'withdrawalLimit',
+  creditLimit: 'creditLimit',
+  active: 'active',
+  accountIBAN: 'accountIBAN'
+} as const
+
+export type CardScalarFieldEnum = (typeof CardScalarFieldEnum)[keyof typeof CardScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -92,4 +150,12 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

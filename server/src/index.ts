@@ -3,18 +3,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import pino from 'pino';
 import pinoHttp from 'pino-http';
-import pg from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../prisma/generated/prisma/client';
+import { disconnectPrisma } from './lib/database/prisma';
 
 dotenv.config();
-
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({
-  adapter,
-  log: ['query', 'info', 'warn', 'error']
-});
 
 const PORT = process.env.APP_PORT || 3000;
 
@@ -44,10 +35,8 @@ const server = app.listen(PORT, () => {
 });
 
 const shutdown = async () => {
-  await prisma.$disconnect();
-  await pool.end();
+  await disconnectPrisma();
   server.close(async () => {
-    await prisma.$disconnect();
     console.log('Servidor Express cerrado.');
     process.exit(0);
   });

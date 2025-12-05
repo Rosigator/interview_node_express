@@ -8,5 +8,10 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/Bank'
+export type * from './models/ATM'
 export type * from './models/User'
+export type * from './models/Account'
+export type * from './models/Transaction'
+export type * from './models/Card'
 export type * from './commonInputTypes'
