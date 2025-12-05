@@ -12,3 +12,70 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Bank {
+  id            String    @id @default(cuid())
+  name          String
+  withdrawalFee Float     @default(0)
+  transferFee   Float     @default(0)
+  accounts      Account[]
+  atms          ATM[]
+}
+
+model ATM {
+  id     String @id @default(cuid())
+  bank   Bank   @relation(fields: [bankId], references: [id])
+  bankId String
+}
+
+model User {
+  id       String    @id @default(cuid())
+  accounts Account[]
+}
+
+model Account {
+  IBAN                    String        @id @default(cuid())
+  user                    User          @relation(fields: [userId], references: [id])
+  userId                  String
+  transactions            Transaction[] @relation("MainAccount")
+  counterpartTransactions Transaction[] @relation("CounterpartAccount")
+  cards                   Card[]
+  bank                    Bank          @relation(fields: [bankId], references: [id])
+  bankId                  String
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER_IN
+  TRANSFER_OUT
+  FEE
+}
+
+model Transaction {
+  id                     String          @id @default(cuid())
+  type                   TransactionType
+  amount                 Float
+  mainAccount            Account         @relation("MainAccount", fields: [mainAccountIBAN], references: [IBAN])
+  mainAccountIBAN        String
+  counterpartAccount     Account?        @relation("CounterpartAccount", fields: [counterpartAccountIBAN], references: [IBAN])
+  counterpartAccountIBAN String?
+  date                   DateTime        @default(now())
+}
+
+enum CardType {
+  DEBIT
+  CREDIT
+}
+
+model Card {
+  id              String   @id @default(cuid())
+  hashedPin       String
+  pinChanged      Boolean  @default(false)
+  type            CardType
+  withdrawalLimit Float
+  creditLimit     Float?
+  active          Boolean  @default(false)
+  account         Account  @relation(fields: [accountIBAN], references: [IBAN])
+  accountIBAN     String
+}
