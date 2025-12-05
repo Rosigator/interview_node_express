@@ -2,7 +2,7 @@ import { prisma } from "../lib/database/prisma";
 import { DatabaseError } from "../lib/errors/errors";
 
 class AccountService {
-    async getTransactions(iban: string) {
+    static async getTransactions(iban: string) {
         try {
             const transactions = await prisma.transaction.findMany({
                 where: {
@@ -21,7 +21,7 @@ class AccountService {
         }
     }
 
-    async getBalance(iban: string) {
+    static async getBalance(iban: string) {
         try {
             const result = await prisma.transaction.aggregate({
                 where: {

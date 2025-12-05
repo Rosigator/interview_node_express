@@ -4,7 +4,7 @@ import { DatabaseError, CardError } from "../lib/errors/errors";
 
 class CardService {
 
-    async changePin(cardId: string, oldPin: string, newHashedPin: string): Promise<boolean> {
+    static async changePin(cardId: string, oldPin: string, newHashedPin: string): Promise<boolean> {
         let card;
         try {
             card = await prisma.card.findUnique({
@@ -36,7 +36,7 @@ class CardService {
         }
     }
 
-    async activateCard(cardId: string, pin: string): Promise<boolean> {
+    static async activateCard(cardId: string, pin: string): Promise<boolean> {
         let card;
         try {
             card = await prisma.card.findUnique({
@@ -65,7 +65,7 @@ class CardService {
         }
     }
 
-    async checkPin(cardId: string, pin: string): Promise<boolean> {
+    static async pinIsValid(cardId: string, pin: string): Promise<boolean> {
         let card;
         try {
             card = await prisma.card.findUnique({

@@ -55,7 +55,7 @@ enum TransactionType {
 model Transaction {
   id                     String          @id @default(cuid())
   type                   TransactionType
-  description            String
+  description            String?
   amount                 Float
   mainAccount            Account         @relation("MainAccount", fields: [mainAccountIBAN], references: [IBAN])
   mainAccountIBAN        String
