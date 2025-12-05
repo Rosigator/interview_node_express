@@ -10,7 +10,7 @@
     "seed": "tsx src/lib/database/seed.ts",
     "prisma:migrate:dev": "dotenv -e .env.development -- prisma migrate dev --schema=prisma/schema.prisma",
     "prisma:migrate:test": "dotenv -e .env.test -- prisma migrate dev --schema=prisma/schema.prisma",
-    "prisma:generate": "prisma generate --schema=prisma/schema.prisma",
+    "prisma:generate": "dotenv -e .env.development -- prisma generate --schema=prisma/schema.prisma",
     "prisma:reset:dev": "dotenv -e .env.development -- prisma migrate reset -f --schema=prisma/schema.prisma",
     "prisma:reset:test": "dotenv -e .env.test -- prisma migrate reset -f --schema=prisma/schema.prisma",
     "test": "dotenv -e .env.test -- node --experimental-vm-modules node_modules/jest/bin/jest.js",

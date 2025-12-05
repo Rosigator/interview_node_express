@@ -1,4 +1,5 @@
 import { prisma } from "../lib/database/prisma";
+import type { Card } from "../../prisma/generated/prisma/client";
 import bcrypt from 'bcrypt';
 import { DatabaseError, CardError } from "../lib/errors/errors";
 
@@ -66,7 +67,7 @@ class CardService {
     }
 
     static async pinIsValid(cardId: string, pin: string): Promise<boolean> {
-        let card;
+        let card: Card | null = null;
         try {
             card = await prisma.card.findUnique({
                 where: { id: cardId }
@@ -76,6 +77,9 @@ class CardService {
         }
         if (!card) {
             throw new CardError("Card not found");
+        }
+        if (!card.active) {
+            throw new CardError("Card is not active");
         }
         const hashedPin = card.hashedPin;
         const isMatch = await bcrypt.compare(pin, hashedPin);
