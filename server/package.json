@@ -8,8 +8,13 @@
     "start": "tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
     "seed": "tsx src/lib/database/seed.ts",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch"
+    "prisma:migrate:dev": "dotenv -e .env.development -- prisma migrate dev --schema=prisma/schema.prisma",
+    "prisma:migrate:test": "dotenv -e .env.test -- prisma migrate dev --schema=prisma/schema.prisma",
+    "prisma:generate": "prisma generate --schema=prisma/schema.prisma",
+    "prisma:reset:dev": "dotenv -e .env.development -- prisma migrate reset -f --schema=prisma/schema.prisma",
+    "prisma:reset:test": "dotenv -e .env.test -- prisma migrate reset -f --schema=prisma/schema.prisma",
+    "test": "dotenv -e .env.test -- node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "dotenv -e .env.test -- node --experimental-vm-modules node_modules/jest/bin/jest.js --watch"
   },
   "keywords": [],
   "author": "",
@@ -36,6 +41,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^24.10.1",
     "@types/pg": "^8.15.6",
+    "dotenv-cli": "^11.0.0",
     "jest": "^30.2.0",
     "prisma": "^7.1.0",
     "ts-jest": "^29.4.6",
